@@ -621,16 +621,17 @@ async function goStep2(){
     t+=600;
   });
 
-  // Crawl with Jina via allorigins proxy
+  // Crawl with Jina via corsproxy
   setTimeout(async function(){
     try{
       var jinaUrl='https://r.jina.ai/'+url;
-      var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(jinaUrl);
+      var proxyUrl='https://corsproxy.io/?'+encodeURIComponent(jinaUrl);
       var resp=await fetch(proxyUrl);
-      var json=await resp.json();
-      D.pageContent=(json.contents||'').substring(0,8000);
+      var text=await resp.text();
+      D.pageContent=text.substring(0,8000);
     }catch(e){
-      D.pageContent='Could not fetch page content. Domain: '+D.domain;
+      // Fallback — still run analysis with just the domain and manual inputs
+      D.pageContent='Page crawl unavailable. Analyze based on domain: '+D.domain+' and sales process data only.';
     }
 
     // Mark crawl steps done
@@ -802,7 +803,10 @@ Respond ONLY in valid JSON. No markdown, no preamble, nothing outside the JSON.
     });
     var data=await resp.json();
     var txt=data.content.map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
-    R=JSON.parse(txt);
+    // Find JSON in response even if there's extra text
+    var jsonMatch=txt.match(/\{[\s\S]*\}/);
+    if(!jsonMatch)throw new Error('No JSON in response');
+    R=JSON.parse(jsonMatch[0]);
     document.getElementById('pfill').style.width='100%';
     setTimeout(function(){
       document.getElementById('step-loading').style.display='none';
