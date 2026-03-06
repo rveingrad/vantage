@@ -1,14 +1,15 @@
-exports.handler = async function(event, context) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
+exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json'
   };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
   try {
-    const { prompt, systemPrompt } = JSON.parse(event.body);
+    const body = JSON.parse(event.body || '{}');
+    const prompt = body.prompt || '';
+    const systemPrompt = body.systemPrompt || 'You are a helpful assistant.';
+    if (!prompt) throw new Error('No prompt provided');
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -18,7 +19,7 @@ exports.handler = async function(event, context) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: prompt }]
       })
