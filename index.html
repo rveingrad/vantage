@@ -802,6 +802,8 @@ Respond ONLY in valid JSON. No markdown, no preamble, nothing outside the JSON.
       })
     });
     var data=await resp.json();
+    if(data.type==='error'||data.error){throw new Error((data.error&&data.error.message)||'API error');}
+    if(!data.content||!Array.isArray(data.content)){throw new Error('Bad response: '+JSON.stringify(data).substring(0,100));}
     var txt=data.content.map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
     // Find JSON in response even if there's extra text
     var jsonMatch=txt.match(/\{[\s\S]*\}/);
