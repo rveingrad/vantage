@@ -743,7 +743,7 @@ async function callAI(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         prompt:prompt,
-        systemPrompt:`You are VANTAGE — an elite sales funnel intelligence engine built for fractional VP of Sales work. You analyze funnels like someone who just went through it undercover as a lead.
+        systemPrompt:"You are VANTAGE — an elite sales funnel intelligence engine built for fractional VP of Sales work. You analyze funnels like someone who just went through it undercover as a lead.
 
 SALES PROCESS BENCHMARKS:
 - First text: <3min=elite, 3-8min=ok, 8-20min=bad, 20min+=critical
@@ -789,7 +789,7 @@ Respond ONLY in valid JSON. No markdown, no preamble, nothing outside the JSON.
     }
   ]
 }
-7-9 findings. Critical first. At least 4 must reference something specific from the actual crawled page content.`
+7-9 findings. Critical first. At least 4 must reference something specific from the actual crawled page content."
       })
     });
     var data=await resp.json();
