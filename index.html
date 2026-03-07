@@ -621,14 +621,16 @@ async function goStep2(){
     t+=600;
   });
 
-  // Crawl with Jina via corsproxy
+  // Crawl with Jina via allorigins
   setTimeout(async function(){
     try{
       var jinaUrl='https://r.jina.ai/'+url;
-      var proxyUrl='https://corsproxy.io/?'+encodeURIComponent(jinaUrl);
+      var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(jinaUrl);
       var resp=await fetch(proxyUrl);
-      var text=await resp.text();
-      D.pageContent=text.substring(0,8000);
+      var json=await resp.json();
+      var text=json.contents||'';
+      if(!text||text.length<100){D.pageContent='Page crawl unavailable. Analyze based on domain: '+D.domain+' and sales process data only.';}
+      else{D.pageContent=text.substring(0,8000);}
     }catch(e){
       // Fallback — still run analysis with just the domain and manual inputs
       D.pageContent='Page crawl unavailable. Analyze based on domain: '+D.domain+' and sales process data only.';
