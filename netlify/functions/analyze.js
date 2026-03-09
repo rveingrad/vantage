@@ -97,7 +97,7 @@ PAGE/FUNNEL BENCHMARKS:
 Respond ONLY in valid JSON. No markdown, no preamble, nothing outside the JSON.
 {
   "overallScore": number,
-  "verdict": "3-5 word ALL-CAPS verdict",
+  "verdict": "ALL-CAPS verdict based on score tier: 0-20=CRITICAL REVENUE EMERGENCY, 21-35=BROKEN FROM THE START, 36-50=LEAKING MONEY EVERYWHERE, 51-65=AMATEUR HOUR FUNNEL, 66-75=LEAVING MONEY ON TABLE, 76-85=SOLID BUT FIXABLE, 86-94=NEARLY DIALED IN, 95-100=ELITE FUNNEL OPERATION",
   "summary": "2 punchy sentences. Name specific things from the actual crawled page AND the sales process. Sound like someone who just went through their funnel undercover.",
   "categories": [
     {"name":"Speed to Lead","score":number,"color":"green|gold|orange|red"},
