@@ -23,42 +23,53 @@ exports.handler = async function(event, context) {
 
   try {
     const body = JSON.parse(event.body);
-    let userPrompt;
+    const D = body.data || {};
 
-    if (body.data) {
-      const D = body.data;
-      userPrompt =
-        'Funnel URL: ' + D.url + '\nDomain: ' + D.domain + '\n\n' +
-        '═══ ACTUAL PAGE CONTENT (crawled live) ═══\n' +
-        (D.pageContent || 'Not available') + '\n\n' +
-        '═══ AUTO-DETECTED SIGNALS ═══\n' +
-        '- VSL / video detected on page: ' + (D.hasVSL ? 'YES' : 'NO') + '\n' +
-        '- Social proof / testimonials detected: ' + (D.hasSocialProof ? 'YES' : 'NO') + '\n' +
-        '- Application / typeform detected: ' + (D.hasTypeform ? 'YES' : 'NO') + '\n' +
-        '- Primary CTA text detected: ' + (D.ctaText || 'none detected') + '\n' +
-        '- Authority markers (press, features): ' + (D.hasAuthority ? 'YES' : 'NO') + '\n\n' +
-        '═══ SALES PROCESS (self-reported) ═══\n' +
-        '- Minutes to first text: ' + (D.textDelay != null ? D.textDelay : 'not provided') + '\n' +
-        '- Minutes to first dial: ' + (D.dialDelay != null ? D.dialDelay : 'not provided') + '\n' +
-        '- Text sender type: ' + (D.textSender || 'not provided') + '\n' +
-        '- Double dial policy: ' + (D.doubleDial || 'not provided') + '\n' +
-        '- Booking window: ' + (D.booking || 'not provided') + '\n' +
-        '- CRM: ' + (D.crm || 'not provided') + '\n' +
-        '- Follow-up emails before call: ' + (D.emails || 0) + '\n' +
-        '- Follow-up texts before call: ' + (D.texts || 0) + '\n' +
-        '- Lead notification system: ' + (D.notify || 'not provided') + '\n' +
-        '- Setter framing / first text: ' + (D.framing || 'not provided') + '\n' +
-        '- Post-booking value sent: ' + (D.postbook || 'not provided') + '\n' +
-        '- Financial qualification intensity: ' + (D.qual || 'not provided');
-    } else if (body.prompt) {
-      userPrompt = body.prompt;
-    } else {
-      throw new Error('Invalid request — expected {data} or {prompt}');
+    // ── SERVER-SIDE CRAWL via Jina AI ──
+    let pageContent = 'Page crawl unavailable.';
+    if (D.url) {
+      try {
+        const jinaResp = await fetch('https://r.jina.ai/' + D.url, {
+          headers: {
+            'Accept': 'text/plain',
+            'X-Timeout': '8'
+          }
+        });
+        if (jinaResp.ok) {
+          const text = await jinaResp.text();
+          if (text && text.length > 100) {
+            pageContent = text.substring(0, 8000);
+          }
+        }
+      } catch (crawlErr) {
+        pageContent = 'Page crawl failed: ' + crawlErr.message;
+      }
     }
 
-    if (!userPrompt || userPrompt.trim().length < 10) {
-      throw new Error('Prompt is empty');
-    }
+    // ── BUILD PROMPT ──
+    const userPrompt =
+      'Funnel URL: ' + (D.url || 'unknown') + '\nDomain: ' + (D.domain || 'unknown') + '\n\n' +
+      '═══ ACTUAL PAGE CONTENT (crawled live) ═══\n' +
+      pageContent + '\n\n' +
+      '═══ AUTO-DETECTED SIGNALS ═══\n' +
+      '- VSL / video detected on page: ' + (D.hasVSL ? 'YES' : 'NO') + '\n' +
+      '- Social proof / testimonials detected: ' + (D.hasSocialProof ? 'YES' : 'NO') + '\n' +
+      '- Application / typeform detected: ' + (D.hasTypeform ? 'YES' : 'NO') + '\n' +
+      '- Primary CTA text detected: ' + (D.ctaText || 'none detected') + '\n' +
+      '- Authority markers (press, features): ' + (D.hasAuthority ? 'YES' : 'NO') + '\n\n' +
+      '═══ SALES PROCESS (self-reported) ═══\n' +
+      '- Minutes to first text: ' + (D.textDelay != null ? D.textDelay : 'not provided') + '\n' +
+      '- Minutes to first dial: ' + (D.dialDelay != null ? D.dialDelay : 'not provided') + '\n' +
+      '- Text sender type: ' + (D.textSender || 'not provided') + '\n' +
+      '- Double dial policy: ' + (D.doubleDial || 'not provided') + '\n' +
+      '- Booking window: ' + (D.booking || 'not provided') + '\n' +
+      '- CRM: ' + (D.crm || 'not provided') + '\n' +
+      '- Follow-up emails before call: ' + (D.emails || 0) + '\n' +
+      '- Follow-up texts before call: ' + (D.texts || 0) + '\n' +
+      '- Lead notification system: ' + (D.notify || 'not provided') + '\n' +
+      '- Setter framing / first text: ' + (D.framing || 'not provided') + '\n' +
+      '- Post-booking value sent: ' + (D.postbook || 'not provided') + '\n' +
+      '- Financial qualification intensity: ' + (D.qual || 'not provided');
 
     const systemPrompt = `You are VANTAGE — an elite sales funnel intelligence engine. You went into this funnel like a trojan horse — crawled the actual page as a lead would experience it, AND received self-reported sales process data. Analyze both layers together.
 
