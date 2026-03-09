@@ -621,14 +621,12 @@ async function goStep2(){
     t+=600;
   });
 
-  // Crawl with Jina via corsproxy
+  // Crawl via server-side Netlify function (no CORS)
   setTimeout(async function(){
     try{
-      var jinaUrl='https://r.jina.ai/'+url;
-      var proxyUrl='https://corsproxy.io/?'+encodeURIComponent(jinaUrl);
-      var resp=await fetch(proxyUrl);
-      var text=await resp.text();
-      D.pageContent=text.substring(0,8000);
+      var resp=await fetch('/.netlify/functions/crawl',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:url})});
+      var json=await resp.json();
+      if(json.success&&json.content&&json.content.length>100){D.pageContent=json.content;}else{D.pageContent='Page crawl unavailable. Analyze based on domain: '+D.domain+' and sales process data only.';}
     }catch(e){
       // Fallback — still run analysis with just the domain and manual inputs
       D.pageContent='Page crawl unavailable. Analyze based on domain: '+D.domain+' and sales process data only.';
