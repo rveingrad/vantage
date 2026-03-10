@@ -736,7 +736,7 @@ async function callAI(){
     '- Financial qualification intensity: '+(D.qual||'not provided');
 
   try{
-    var resp=await fetch('/.netlify/functions/analyze',{
+    var resp=await fetch('/api/analyze',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({data:D})
