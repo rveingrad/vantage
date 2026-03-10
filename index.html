@@ -9,7 +9,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#05070A;--s1:#0A0D12;--s2:#0F1318;--s3:#141A22;
-  --border:#1A2030;--border2:#222D3A;
+  --border:#1A2030;--border2:#222D3A
   --text:#EDF1F5;--muted:#3A4A5A;--soft:#7A8A9A;
   --gold:#C8973A;--gold2:#E8B84B;--golddim:rgba(200,151,58,0.1);
   --red:#E84545;--reddim:rgba(232,69,69,0.08);
@@ -760,8 +760,38 @@ async function callAI(){
   }
 }
 
+// ══ LOG LEAD ══
+function logLead(){
+  var SHEET_URL='https://script.google.com/macros/s/AKfycbwVKPu2Q8E4EgUyHkwP4NPcYBqLwdG1W0hRjrvR4rc2LZdyr9gAJsrR8jXHseozhv-uNg/exec';
+  var payload={
+    url:D.url||'',
+    domain:D.domain||'',
+    textDelay:D.textDelay||'',
+    dialDelay:D.dialDelay||'',
+    textSender:D.textSender||'',
+    doubleDial:D.doubleDial||'',
+    booking:D.booking||'',
+    crm:D.crm||'',
+    emails:D.emails||'',
+    texts:D.texts||'',
+    notify:D.notify||'',
+    framing:D.framing||'',
+    postbook:D.postbook||'',
+    qual:D.qual||'',
+    score:R.overallScore||'',
+    verdict:R.verdict||''
+  };
+  fetch(SHEET_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).catch(function(){});
+}
+
 // ══ RENDER ══
 function renderReport(){
+  logLead();
   var score=R.overallScore||0;
   var sc=score>=75?'var(--green)':score>=55?'var(--gold)':score>=35?'var(--orange)':'var(--red)';
   var circ=2*Math.PI*62;
